@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart To-Do List</title>
+    <title>Jet2Holiday - Advanced Task Manager</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6c5ce7;
@@ -22,8 +23,8 @@
             --text: #2d3436;
             --text-light: #636e72;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --radius: 12px;
-            --transition: all 0.3s ease;
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         * {
@@ -34,248 +35,511 @@
         }
 
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: var(--text);
-            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: var(--text);
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
         }
 
-        h1 {
-            font-weight: 700;
-            font-size: 2.8rem;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+        /* Header Styles */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 18px 35px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow);
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--accent), var(--secondary));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 10px;
         }
 
-        .subtitle {
-            color: var(--text-light);
-            font-size: 1.1rem;
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #fff, var(--light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
-        .app-container {
+        .tagline {
+            margin-top: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            font-size: 1.2rem;
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard {
             display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 25px;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
-        @media (max-width: 900px) {
-            .app-container {
+        @media (max-width: 1024px) {
+            .dashboard {
                 grid-template-columns: 1fr;
             }
         }
 
+        /* Sidebar Styles */
         .sidebar {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius);
             padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
             height: fit-content;
             position: sticky;
             top: 20px;
         }
 
-        .section-title {
-            font-size: 1.3rem;
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--primary);
+            color: white;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .section-title i {
-            color: var(--secondary);
+        /* Calendar Styles */
+        .calendar-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .date-selector {
-            margin-bottom: 30px;
-        }
-
-        .date-header {
+        .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
 
-        .date-title {
-            font-size: 1.2rem;
+        .calendar-title {
             font-weight: 600;
-            color: var(--dark);
+            color: white;
+            font-size: 1rem;
+            flex: 1;
+            text-align: center;
         }
 
-        .date-navigation button {
-            background: var(--primary);
-            color: white;
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calendar-nav button {
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             width: 32px;
             height: 32px;
-            border-radius: 50%;
+            border-radius: 8px;
+            color: white;
             cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition);
         }
 
-        .date-navigation button:hover {
-            background: var(--primary-dark);
-            transform: scale(1.1);
+        .calendar-nav button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
 
-        .calendar {
+        .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 5px;
         }
 
-        .calendar-header {
+        .calendar-day-header {
             text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 8px 0;
             font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-bottom: 10px;
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
         }
 
         .calendar-day {
-            height: 36px;
+            aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
             cursor: pointer;
             transition: var(--transition);
-            font-weight: 500;
             position: relative;
         }
 
         .calendar-day:hover {
-            background: var(--primary-light);
-            color: white;
-        }
-
-        .calendar-day.selected {
-            background: var(--primary);
-            color: white;
+            background: rgba(255, 255, 255, 0.15);
             transform: scale(1.1);
         }
 
-        .calendar-day.today {
-            background: var(--secondary);
+        .calendar-day.selected {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
             color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+        }
+
+        .calendar-day.today {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            font-weight: 700;
         }
 
         .calendar-day.other-month {
-            color: #ccc;
+            color: rgba(255, 255, 255, 0.3);
         }
 
         .calendar-day.has-tasks::after {
             content: "";
             position: absolute;
-            bottom: 2px;
-            width: 5px;
-            height: 5px;
+            bottom: 3px;
+            width: 4px;
+            height: 4px;
             background-color: var(--accent);
             border-radius: 50%;
         }
 
-        .time-selector {
-            margin-bottom: 30px;
-        }
-
-        .time-input {
+        /* Time Filter */
+        .time-filter {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .time-input input {
-            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
             padding: 12px 15px;
-            border: 1px solid var(--gray);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .time-input input:focus {
+        .time-filter input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .time-filter input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+            box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.3);
         }
 
-        .filter-section {
-            margin-bottom: 20px;
-        }
-
-        .filter-options {
+        /* Main Content */
+        .main-content {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 25px;
         }
 
-        .filter-option {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            padding: 12px 15px;
-            border-radius: 8px;
-            transition: var(--transition);
-            background: rgba(108, 92, 231, 0.05);
-        }
-
-        .filter-option:hover {
-            background: rgba(108, 92, 231, 0.1);
-            transform: translateX(5px);
-        }
-
-        .filter-option input {
-            margin: 0;
-            accent-color: var(--primary);
-        }
-
-        .filter-option span {
-            font-weight: 500;
-        }
-
-        .stats-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
+        /* Add Task Section */
+        .add-task-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius);
             padding: 20px;
-            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: var(--shadow);
         }
 
-        .stats-title {
-            font-size: 1.1rem;
+        .add-task-btn {
+            width: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .add-task-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        /* Task Board */
+        .task-board {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 25px;
+        }
+
+        @media (max-width: 1024px) {
+            .task-board {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Task List */
+        .task-list-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+        }
+
+        .task-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .task-list-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .task-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .task-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .task-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .task-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .task-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        /* Task Cards */
+        .task-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .task-card.high-priority::before {
+            background: var(--danger);
+        }
+
+        .task-card.medium-priority::before {
+            background: var(--warning);
+        }
+
+        .task-card.low-priority::before {
+            background: var(--success);
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+        }
+
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .task-title-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            flex: 1;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .task-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .task-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-description {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1.1rem;
+            max-width: 300px;
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .stats-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -287,248 +551,135 @@
             gap: 15px;
         }
 
-        .stat {
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
         }
 
         .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Progress Ring */
+        .progress-container {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+        }
+
+        .progress-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-ring .progress {
+            stroke: url(#gradient);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .progress-label {
             font-size: 0.9rem;
-            opacity: 0.9;
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .add-task-section {
-            background: rgba(255, 255, 255, 0.9);
+        /* Task Filter Section */
+        .task-filter-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius);
             padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
         }
 
-        .add-task-btn {
-            background: linear-gradient(to right, var(--primary), var(--primary-light));
+        .filter-title {
+            font-size: 1.2rem;
+            font-weight: 700;
             color: white;
-            border: none;
-            padding: 16px 30px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            width: 100%;
-            justify-content: center;
-            font-weight: 600;
-            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
-        }
-
-        .add-task-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4);
-        }
-
-        .tasks-container {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        .tasks-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid var(--gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-        }
-
-        .tasks-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .tasks-count {
-            color: var(--text-light);
-            font-size: 1rem;
-            background: var(--light);
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-
-        .tasks-list {
-            max-height: 600px;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .task-item {
-            padding: 20px;
-            border-bottom: 1px solid var(--gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: var(--transition);
-            border-radius: 8px;
-            margin: 10px;
-            background: white;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
-        }
-
-        .task-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .task-item:last-child {
-            border-bottom: none;
-        }
-
-        .task-content {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .task-checkbox {
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            accent-color: var(--primary);
-        }
-
-        .task-details {
-            flex-grow: 1;
-        }
-
-        .task-text {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .task-text.completed {
-            text-decoration: line-through;
-            color: var(--text-light);
-        }
-
-        .task-meta {
-            display: flex;
-            gap: 20px;
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        .task-date, .task-time, .task-priority {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .task-actions {
-            display: flex;
             gap: 10px;
         }
 
-        .task-action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.1rem;
-            padding: 8px;
-            border-radius: 50%;
-            transition: var(--transition);
-            width: 36px;
-            height: 36px;
+        .filter-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-option {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .edit-btn {
-            color: var(--primary);
+        .filter-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
         }
 
-        .delete-btn {
-            color: var(--danger);
+        .filter-option input {
+            accent-color: var(--primary);
         }
 
-        .edit-btn:hover {
-            background-color: rgba(108, 92, 231, 0.1);
-            transform: scale(1.1);
+        .filter-option span {
+            color: white;
+            font-weight: 500;
         }
 
-        .delete-btn:hover {
-            background-color: rgba(225, 112, 85, 0.1);
-            transform: scale(1.1);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: var(--primary-light);
-            opacity: 0.5;
-        }
-
-        .empty-state p {
-            font-size: 1.2rem;
-        }
-
-        /* Priority Indicators */
-        .priority-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 10px;
-            display: inline-block;
-        }
-
-        .priority-high {
-            background-color: var(--danger);
-        }
-
-        .priority-medium {
-            background-color: var(--warning);
-        }
-
-        .priority-low {
-            background-color: var(--success);
-        }
-
-        /* Task Status Indicators */
-        .task-item.overdue {
-            border-left: 4px solid var(--danger);
-        }
-
-        .task-item.due-today {
-            border-left: 4px solid var(--secondary);
-        }
-
-        .task-item.future {
-            border-left: 4px solid var(--success);
-        }
-
-        /* Compact Modal Styles */
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -536,7 +687,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -544,260 +695,291 @@
         }
 
         .modal-content {
-            background: white;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
             border-radius: var(--radius);
             width: 90%;
-            max-width: 420px;
-            padding: 0;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: modalAppear 0.3s forwards;
+            animation: modalAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes modalAppear {
+            from {
+                transform: translateY(50px) scale(0.9);
+                opacity: 0;
+            }
             to {
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
                 opacity: 1;
             }
         }
 
         .modal-header {
-            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            background: linear-gradient(45deg, var(--primary), var(--accent));
             color: white;
-            padding: 15px 20px;
+            padding: 20px 25px;
             position: relative;
         }
 
         .modal-title {
-            font-size: 1.3rem;
-            font-weight: 600;
+            font-size: 1.4rem;
+            font-weight: 700;
         }
 
         .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
             background: none;
             border: none;
             font-size: 1.5rem;
-            cursor: pointer;
             color: white;
-            position: absolute;
-            top: 12px;
-            right: 15px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: var(--transition);
         }
 
         .close-btn:hover {
-            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
         }
 
         .modal-body {
-            padding: 20px;
+            padding: 25px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
+            margin-bottom: 8px;
+            font-weight: 600;
             color: var(--dark);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .form-input, .form-textarea, .form-select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px 15px;
             border: 1px solid var(--gray);
-            border-radius: 6px;
-            font-size: 0.95rem;
+            border-radius: 10px;
+            font-size: 1rem;
             transition: var(--transition);
+            background: rgba(255, 255, 255, 0.8);
         }
 
         .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
         }
 
         .form-textarea {
             resize: vertical;
-            min-height: 80px;
-            font-size: 0.9rem;
+            min-height: 100px;
         }
 
-        .datetime-row {
+        .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 15px;
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 12px;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: var(--transition);
+            border-radius: 10px;
+            font-size: 1rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
         .btn-primary {
-            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            background: linear-gradient(45deg, var(--primary), var(--accent));
             color: white;
-            box-shadow: 0 3px 8px rgba(108, 92, 231, 0.3);
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 12px rgba(108, 92, 231, 0.4);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
         }
 
         .btn-secondary {
-            background: var(--light);
+            background: var(--gray);
             color: var(--text);
-            border: 1px solid var(--gray);
         }
 
         .btn-secondary:hover {
-            background: var(--gray);
+            background: #b2bec3;
         }
 
         .btn-danger {
-            background: linear-gradient(to right, var(--danger), #e17055);
+            background: linear-gradient(45deg, var(--danger), #d63031);
             color: white;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .app-container {
-                gap: 15px;
-            }
-            
-            .sidebar {
-                position: static;
-            }
-            
-            .datetime-row {
+            .dashboard {
                 grid-template-columns: 1fr;
             }
             
-            .task-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
+            .task-board {
+                grid-template-columns: 1fr;
             }
             
-            .task-actions {
-                align-self: flex-end;
-            }
-            
-            .task-meta {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .modal-content {
-                max-width: 95%;
-                margin: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .sidebar, .add-task-section, .tasks-container {
-                padding: 20px;
-            }
-            
-            .modal-body {
-                padding: 15px;
+            .form-row {
+                grid-template-columns: 1fr;
             }
             
             .stats-grid {
                 grid-template-columns: 1fr;
             }
             
-            .modal-header {
-                padding: 12px 15px;
+            .filter-options {
+                grid-template-columns: 1fr;
             }
             
-            .modal-title {
-                font-size: 1.2rem;
+            .modal-content {
+                max-width: 95%;
+                margin: 20px;
             }
-        }
-
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-light);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
+            
+            .task-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-tasks"></i> Jet2Holiday</h1>
-            <p class="subtitle">Your smart daily task manager with date and time tracking</p>
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-tasks logo-icon"></i>
+                <span class="logo-text">Jet2Holiday</span>
+            </div>
+            <p class="tagline">Advanced Task Management System</p>
         </header>
 
-        <div class="app-container">
+        <div class="dashboard">
             <div class="sidebar">
-                <div class="date-selector">
-                    <div class="date-header">
-                        <div class="date-title" id="currentMonth">September 2023</div>
-                        <div class="date-navigation">
-                            <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-                            <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <i class="far fa-calendar-alt"></i> Calendar
+                    </h3>
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <div class="calendar-nav">
+                                <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                            </div>
+                            <div class="calendar-title" id="currentMonth">September 2023</div>
+                            <div class="calendar-nav">
+                                <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid" id="calendar">
+                            <!-- Calendar will be populated by JavaScript -->
                         </div>
                     </div>
-                    <div class="calendar-header">
-                        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-                    </div>
-                    <div class="calendar" id="calendar"></div>
                 </div>
 
-                <div class="time-selector">
-                    <div class="section-title">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
                         <i class="far fa-clock"></i> Time Filter
-                    </div>
-                    <div class="time-input">
+                    </h3>
+                    <div class="time-filter">
                         <input type="time" id="timeFilter" value="00:00">
                     </div>
                 </div>
+            </div>
 
-                <div class="filter-section">
-                    <div class="section-title">
-                        <i class="fas fa-filter"></i> Task Filter
+            <div class="main-content">
+                <div class="add-task-container">
+                    <button class="add-task-btn" id="addTaskBtn">
+                        <i class="fas fa-plus-circle"></i> Create New Task
+                    </button>
+                </div>
+
+                <div class="task-board">
+                    <div class="task-list-container">
+                        <div class="task-list-header">
+                            <h2 class="task-list-title" id="tasksTitle">Today's Tasks</h2>
+                            <div class="task-count" id="tasksCount">0 tasks</div>
+                        </div>
+                        <div class="task-list" id="tasksList">
+                            <div class="empty-state" id="emptyState">
+                                <i class="fas fa-clipboard-list empty-icon"></i>
+                                <p class="empty-text">No tasks found. Create a new task to get started!</p>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="stats-panel">
+                        <h3 class="stats-title">
+                            <i class="fas fa-chart-pie"></i> Task Analytics
+                        </h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="totalTasks">0</div>
+                                <div class="stat-label">Total</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="completedTasks">0</div>
+                                <div class="stat-label">Completed</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="pendingTasks">0</div>
+                                <div class="stat-label">Pending</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="overdueTasks">0</div>
+                                <div class="stat-label">Overdue</div>
+                            </div>
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="progress-ring">
+                                <svg>
+                                    <defs>
+                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#6c5ce7" />
+                                            <stop offset="100%" stop-color="#fd79a8" />
+                                        </linearGradient>
+                                    </defs>
+                                    <circle class="bg" cx="60" cy="60" r="52"></circle>
+                                    <circle class="progress" cx="60" cy="60" r="52" 
+                                            stroke-dasharray="327" 
+                                            stroke-dashoffset="327"></circle>
+                                </svg>
+                                <div class="progress-text" id="progressText">0%</div>
+                            </div>
+                            <div class="progress-label">Completion Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-filter-section">
+                    <h3 class="filter-title">
+                        <i class="fas fa-filter"></i> Task Filters
+                    </h3>
                     <div class="filter-options">
                         <label class="filter-option">
                             <input type="radio" name="filter" value="all" checked>
@@ -805,76 +987,31 @@
                         </label>
                         <label class="filter-option">
                             <input type="radio" name="filter" value="today">
-                            <span>Today</span>
+                            <span>Today's Tasks</span>
                         </label>
                         <label class="filter-option">
                             <input type="radio" name="filter" value="completed">
-                            <span>Completed</span>
+                            <span>Completed Tasks</span>
                         </label>
                         <label class="filter-option">
                             <input type="radio" name="filter" value="pending">
-                            <span>Pending</span>
+                            <span>Pending Tasks</span>
                         </label>
                         <label class="filter-option">
                             <input type="radio" name="filter" value="overdue">
-                            <span>Overdue</span>
+                            <span>Overdue Tasks</span>
                         </label>
-                    </div>
-                </div>
-
-                <div class="stats-card">
-                    <div class="stats-title">
-                        <i class="fas fa-chart-pie"></i> Task Statistics
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat">
-                            <div class="stat-value" id="totalTasks">0</div>
-                            <div class="stat-label">Total Tasks</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value" id="completedTasks">0</div>
-                            <div class="stat-label">Completed</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value" id="pendingTasks">0</div>
-                            <div class="stat-label">Pending</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value" id="overdueTasks">0</div>
-                            <div class="stat-label">Overdue</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="main-content">
-                <div class="add-task-section">
-                    <button class="add-task-btn" id="addTaskBtn">
-                        <i class="fas fa-plus-circle"></i> Add New Task
-                    </button>
-                </div>
-
-                <div class="tasks-container">
-                    <div class="tasks-header">
-                        <div class="tasks-title" id="tasksTitle">Today's Tasks</div>
-                        <div class="tasks-count" id="tasksCount">0 tasks</div>
-                    </div>
-                    <div class="tasks-list" id="tasksList">
-                        <div class="empty-state" id="emptyState">
-                            <i class="fas fa-clipboard-list"></i>
-                            <p>No tasks for selected date. Add a new task to get started!</p>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Compact Modal for adding/editing tasks -->
+    <!-- Task Modal -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Add New Task</h2>
+                <h2 class="modal-title" id="modalTitle">Create New Task</h2>
                 <button class="close-btn" id="closeModalBtn">&times;</button>
             </div>
             <div class="modal-body">
@@ -884,24 +1021,24 @@
                         <input type="text" id="taskTitle" class="form-input" placeholder="What needs to be done?" required>
                     </div>
                     <div class="form-group">
-                        <label for="taskDescription" class="form-label">Description (Optional)</label>
-                        <textarea id="taskDescription" class="form-textarea" placeholder="Add more details..."></textarea>
+                        <label for="taskDescription" class="form-label">Description</label>
+                        <textarea id="taskDescription" class="form-textarea" placeholder="Add details about your task..."></textarea>
                     </div>
                     <div class="form-group">
                         <label for="taskPriority" class="form-label">Priority</label>
                         <select id="taskPriority" class="form-select">
-                            <option value="low">Low</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">High</option>
+                            <option value="low">Low Priority</option>
+                            <option value="medium" selected>Medium Priority</option>
+                            <option value="high">High Priority</option>
                         </select>
                     </div>
-                    <div class="datetime-row">
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="taskDate" class="form-label">Date</label>
+                            <label for="taskDate" class="form-label">Due Date</label>
                             <input type="date" id="taskDate" class="form-input" required>
                         </div>
                         <div class="form-group">
-                            <label for="taskTime" class="form-label">Time</label>
+                            <label for="taskTime" class="form-label">Due Time</label>
                             <input type="time" id="taskTime" class="form-input">
                         </div>
                     </div>
@@ -914,7 +1051,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal for Delete -->
+    <!-- Delete Confirmation Modal -->
     <div class="modal" id="deleteModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -922,10 +1059,10 @@
                 <button class="close-btn" id="closeDeleteModalBtn">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete this task? This action cannot be undone.</p>
+                <p style="margin-bottom: 20px; font-size: 1.1rem;">Are you sure you want to delete this task? This action cannot be undone.</p>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Task</button>
                 </div>
             </div>
         </div>
@@ -963,6 +1100,8 @@
         const completedTasksEl = document.getElementById('completedTasks');
         const pendingTasksEl = document.getElementById('pendingTasks');
         const overdueTasksEl = document.getElementById('overdueTasks');
+        const progressText = document.getElementById('progressText');
+        const progressCircle = document.querySelector('.progress');
 
         // State variables
         let tasks = JSON.parse(localStorage.getItem('nexusTasks')) || [];
@@ -982,6 +1121,7 @@
             renderCalendar();
             renderTasks();
             updateStats();
+            updateProgressRing();
             setupEventListeners();
         }
 
@@ -1023,14 +1163,25 @@
 
         // Render calendar
         function renderCalendar() {
+            // Clear the calendar
             calendar.innerHTML = '';
             
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             
+            // Update month/year display
             currentMonthEl.textContent = currentDate.toLocaleDateString('en-US', { 
                 month: 'long', 
                 year: 'numeric' 
+            });
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
             });
             
             // Get first day of month and total days
@@ -1039,13 +1190,15 @@
             const daysInMonth = lastDay.getDate();
             
             // Get day of week for first day (0 = Sunday, 6 = Saturday)
-            let startingDay = firstDay.getDay();
+            const firstDayOfWeek = firstDay.getDay();
             
             // Add empty cells for days before the first day of the month
-            for (let i = 0; i < startingDay; i++) {
+            for (let i = 0; i < firstDayOfWeek; i++) {
                 const emptyDay = document.createElement('div');
                 emptyDay.className = 'calendar-day other-month';
-                emptyDay.textContent = new Date(year, month, 0 - (startingDay - i - 1)).getDate();
+                // Calculate the date for the previous month
+                const prevMonthDate = new Date(year, month, 0 - (firstDayOfWeek - i - 1));
+                emptyDay.textContent = prevMonthDate.getDate();
                 calendar.appendChild(emptyDay);
             }
             
@@ -1081,6 +1234,7 @@
                 
                 dayElement.addEventListener('click', () => {
                     selectedDate = date;
+                    currentDate = new Date(date); // Update currentDate to match selected date
                     renderCalendar();
                     renderTasks();
                 });
@@ -1088,8 +1242,8 @@
                 calendar.appendChild(dayElement);
             }
             
-            // Add empty cells for days after the last day of the month
-            const totalCells = 42; // 6 rows x 7 days
+            // Add empty cells for days after the last day of the month to complete the grid
+            const totalCells = 42; // 6 rows x 7 days (including headers)
             const currentCells = calendar.children.length;
             
             for (let i = 0; i < totalCells - currentCells; i++) {
@@ -1145,8 +1299,13 @@
                 return true;
             });
             
-            // Sort tasks by time (if available) and then by creation date
+            // Sort tasks by priority and then by time
             filteredTasks.sort((a, b) => {
+                const priorityOrder = { high: 1, medium: 2, low: 3 };
+                if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                    return priorityOrder[a.priority] - priorityOrder[b.priority];
+                }
+                
                 if (a.time && b.time) {
                     return a.time.localeCompare(b.time);
                 } else if (a.time && !b.time) {
@@ -1160,7 +1319,7 @@
             
             if (filteredTasks.length === 0) {
                 tasksList.appendChild(emptyState);
-                emptyState.style.display = 'block';
+                emptyState.style.display = 'flex';
                 tasksCount.textContent = '0 tasks';
                 
                 // Update tasks title based on filter
@@ -1181,6 +1340,7 @@
             });
             
             updateStats();
+            updateProgressRing();
         }
 
         // Update tasks title based on current filter
@@ -1222,82 +1382,82 @@
             overdueTasksEl.textContent = overdue;
         }
 
+        // Update progress ring
+        function updateProgressRing() {
+            const total = tasks.length;
+            const completed = tasks.filter(task => task.completed).length;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            progressText.textContent = `${percentage}%`;
+            
+            // Calculate stroke-dashoffset for progress ring
+            const circumference = 2 * Math.PI * 52; // radius = 52
+            const offset = circumference - (percentage / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
         // Create a task element
         function createTaskElement(task) {
-            const taskItem = document.createElement('div');
-            taskItem.className = 'task-item';
-            taskItem.dataset.id = task.id;
+            const taskCard = document.createElement('div');
+            taskCard.className = `task-card ${task.priority}-priority`;
+            if (task.completed) taskCard.classList.add('completed');
+            taskCard.dataset.id = task.id;
             
-            // Add status class based on due date
-            const now = new Date();
-            const taskDate = new Date(task.date);
-            
-            if (task.completed) {
-                taskItem.classList.add('completed');
-            } else if (taskDate < now) {
-                taskItem.classList.add('overdue');
-            } else if (taskDate.toDateString() === now.toDateString()) {
-                taskItem.classList.add('due-today');
-            } else {
-                taskItem.classList.add('future');
-            }
-            
-            const priorityClass = `priority-${task.priority}`;
             const priorityText = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
             
-            taskItem.innerHTML = `
-                <div class="task-content">
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-                    <div class="task-details">
-                        <div class="task-text ${task.completed ? 'completed' : ''}">
-                            <span class="priority-indicator ${priorityClass}"></span>
-                            ${task.title}
-                        </div>
-                        <div class="task-meta">
-                            <div class="task-date">
-                                <i class="far fa-calendar"></i>
-                                ${new Date(task.date).toLocaleDateString('en-US', { 
-                                    weekday: 'short', 
-                                    month: 'short', 
-                                    day: 'numeric' 
-                                })}
-                            </div>
-                            ${task.time ? `
-                            <div class="task-time">
-                                <i class="far fa-clock"></i>
-                                ${task.time}
-                            </div>
-                            ` : ''}
-                            <div class="task-priority">
-                                <i class="fas fa-flag"></i>
-                                ${priorityText} Priority
-                            </div>
-                        </div>
-                        ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+            taskCard.innerHTML = `
+                <div class="task-header">
+                    <div class="task-title-container">
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                        <div class="task-title">${task.title}</div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="task-action-btn edit-btn" title="Edit task">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="task-action-btn delete-btn" title="Delete task">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="task-actions">
-                    <button class="task-action-btn edit-btn" title="Edit task"><i class="fas fa-edit"></i></button>
-                    <button class="task-action-btn delete-btn" title="Delete task"><i class="fas fa-trash"></i></button>
+                ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                <div class="task-meta">
+                    <div class="task-meta-item">
+                        <i class="far fa-calendar"></i>
+                        ${new Date(task.date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric' 
+                        })}
+                    </div>
+                    ${task.time ? `
+                    <div class="task-meta-item">
+                        <i class="far fa-clock"></i>
+                        ${task.time}
+                    </div>
+                    ` : ''}
+                    <div class="task-meta-item">
+                        <i class="fas fa-flag"></i>
+                        ${priorityText}
+                    </div>
                 </div>
             `;
             
             // Add event listeners to the task actions
-            const checkbox = taskItem.querySelector('.task-checkbox');
-            const editBtn = taskItem.querySelector('.edit-btn');
-            const deleteBtn = taskItem.querySelector('.delete-btn');
+            const checkbox = taskCard.querySelector('.task-checkbox');
+            const editBtn = taskCard.querySelector('.edit-btn');
+            const deleteBtn = taskCard.querySelector('.delete-btn');
             
             checkbox.addEventListener('change', () => toggleTaskCompletion(task.id));
             editBtn.addEventListener('click', () => openEditTaskModal(task.id));
             deleteBtn.addEventListener('click', () => openDeleteModal(task.id));
             
-            return taskItem;
+            return taskCard;
         }
 
         // Open modal for adding a new task
         function openAddTaskModal() {
             isEditing = false;
-            modalTitle.textContent = 'Add New Task';
+            modalTitle.textContent = 'Create New Task';
             taskTitleInput.value = '';
             taskDescriptionInput.value = '';
             taskPriorityInput.value = 'medium';
@@ -1436,5 +1596,3 @@
     </script>
 </body>
 </html>
-
-
