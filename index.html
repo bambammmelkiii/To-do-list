@@ -1034,8 +1034,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="taskDate" class="form-label">Due Date</label>
-                            <input type="date" id="taskDate" class="form-input" required>
+                            <label for="taskDate" class="form-label">Due Date (optional)</label>
+                            <input type="date" id="taskDate" class="form-input">
                         </div>
                         <div class="form-group">
                             <label for="taskTime" class="form-label">Due Time</label>
@@ -1109,14 +1109,22 @@
         let isEditing = false;
         let currentDate = new Date();
         let selectedDate = new Date();
-        let currentFilter = 'all';
+        let currentFilter = 'date';
+
+        // Helper function to format local date to YYYY-MM-DD
+        function formatLocalDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
 
         // Initialize the app
         function init() {
             // Set today's date as default
             const today = new Date();
+            selectedDate = today;
             taskDateInput.valueAsDate = today;
-            taskDateInput.min = today.toISOString().split('T')[0];
             
             renderCalendar();
             renderTasks();
@@ -1188,70 +1196,79 @@
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
             const daysInMonth = lastDay.getDate();
-            
-            // Get day of week for first day (0 = Sunday, 6 = Saturday)
             const firstDayOfWeek = firstDay.getDay();
             
-            // Add empty cells for days before the first day of the month
+            // Previous month days
+            const lastDayOfPrevMonth = new Date(year, month, 0).getDate();
             for (let i = 0; i < firstDayOfWeek; i++) {
+                const dayNum = lastDayOfPrevMonth - (firstDayOfWeek - 1 - i);
                 const emptyDay = document.createElement('div');
                 emptyDay.className = 'calendar-day other-month';
-                // Calculate the date for the previous month
-                const prevMonthDate = new Date(year, month, 0 - (firstDayOfWeek - i - 1));
-                emptyDay.textContent = prevMonthDate.getDate();
+                emptyDay.textContent = dayNum;
+                const prevDate = new Date(year, month - 1, dayNum);
+                emptyDay.dataset.date = formatLocalDate(prevDate);
+                emptyDay.addEventListener('click', () => {
+                    selectedDate = prevDate;
+                    currentDate = new Date(prevDate.getFullYear(), prevDate.getMonth(), 1);
+                    currentFilter = 'date';
+                    renderCalendar();
+                    renderTasks();
+                });
                 calendar.appendChild(emptyDay);
             }
             
-            // Add days of the month
+            // Current month days
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayElement = document.createElement('div');
                 dayElement.className = 'calendar-day';
                 dayElement.textContent = day;
-                
                 const date = new Date(year, month, day);
-                const dateString = date.toISOString().split('T')[0];
-                
-                // Check if this date has tasks
-                const hasTasks = tasks.some(task => {
-                    const taskDate = new Date(task.date).toISOString().split('T')[0];
-                    return taskDate === dateString;
-                });
-                
-                if (hasTasks) {
-                    dayElement.classList.add('has-tasks');
-                }
-                
-                // Check if this is today
-                const today = new Date();
-                if (date.toDateString() === today.toDateString()) {
-                    dayElement.classList.add('today');
-                }
-                
-                // Check if this is the selected date
-                if (date.toDateString() === selectedDate.toDateString()) {
-                    dayElement.classList.add('selected');
-                }
-                
+                const dateStr = formatLocalDate(date);
+                dayElement.dataset.date = dateStr;
                 dayElement.addEventListener('click', () => {
                     selectedDate = date;
-                    currentDate = new Date(date); // Update currentDate to match selected date
+                    currentDate = new Date(date.getFullYear(), date.getMonth(), 1);
+                    currentFilter = 'date';
                     renderCalendar();
                     renderTasks();
                 });
-                
                 calendar.appendChild(dayElement);
             }
             
-            // Add empty cells for days after the last day of the month to complete the grid
-            const totalCells = 42; // 6 rows x 7 days (including headers)
-            const currentCells = calendar.children.length;
-            
-            for (let i = 0; i < totalCells - currentCells; i++) {
+            // Next month days
+            const daysAddedSoFar = firstDayOfWeek + daysInMonth;
+            const remaining = 42 - daysAddedSoFar;
+            for (let i = 1; i <= remaining; i++) {
                 const emptyDay = document.createElement('div');
                 emptyDay.className = 'calendar-day other-month';
-                emptyDay.textContent = i + 1;
+                const nextDate = new Date(year, month + 1, i);
+                emptyDay.textContent = nextDate.getDate();
+                emptyDay.dataset.date = formatLocalDate(nextDate);
+                emptyDay.addEventListener('click', () => {
+                    selectedDate = nextDate;
+                    currentDate = new Date(nextDate.getFullYear(), nextDate.getMonth(), 1);
+                    currentFilter = 'date';
+                    renderCalendar();
+                    renderTasks();
+                });
                 calendar.appendChild(emptyDay);
             }
+            
+            // Add classes for today, selected, and has-tasks
+            const todayStr = formatLocalDate(new Date());
+            const selectedStr = formatLocalDate(selectedDate);
+            calendar.querySelectorAll('.calendar-day').forEach(dayEl => {
+                const dStr = dayEl.dataset.date;
+                if (dStr === todayStr) {
+                    dayEl.classList.add('today');
+                }
+                if (dStr === selectedStr) {
+                    dayEl.classList.add('selected');
+                }
+                if (tasks.some(task => task.date === dStr)) {
+                    dayEl.classList.add('has-tasks');
+                }
+            });
         }
 
         // Render tasks to the DOM
@@ -1262,38 +1279,33 @@
             // Filter tasks based on selected date and filter option
             let filteredTasks = tasks.filter(task => {
                 const taskDate = new Date(task.date);
-                const taskDateString = taskDate.toISOString().split('T')[0];
-                const selectedDateString = selectedDate.toISOString().split('T')[0];
-                
-                // Date filter
-                if (currentFilter === 'today') {
-                    const today = new Date();
-                    const todayString = today.toISOString().split('T')[0];
-                    if (taskDateString !== todayString) return false;
-                } else if (currentFilter === 'all') {
-                    // Show all tasks regardless of date
-                } else {
-                    if (taskDateString !== selectedDateString) return false;
-                }
+                const taskDateString = formatLocalDate(taskDate);
+                const selectedDateString = formatLocalDate(selectedDate);
                 
                 // Status filter
                 if (currentFilter === 'completed' && !task.completed) return false;
                 if (currentFilter === 'pending' && task.completed) return false;
-                
-                // Overdue filter
                 if (currentFilter === 'overdue') {
                     const now = new Date();
-                    if (task.completed || taskDate >= now) return false;
+                    const taskDueDate = new Date(task.date + 'T00:00:00');
+                    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    taskDueDate.setHours(0, 0, 0, 0);
+                    if (task.completed || taskDueDate >= nowDate) return false;
                 }
                 
+                // Date filter
+                if (currentFilter === 'today') {
+                    const today = new Date();
+                    const todayString = formatLocalDate(today);
+                    if (taskDateString !== todayString) return false;
+                } else if (currentFilter === 'date') {
+                    if (taskDateString !== selectedDateString) return false;
+                }
+                // For 'all' and status filters, no date filter
+                
                 // Time filter
-                if (timeFilter.value) {
-                    if (!task.time) return false;
-                    
-                    const filterTime = timeFilter.value;
-                    const taskTime = task.time;
-                    
-                    if (taskTime < filterTime) return false;
+                if (timeFilter.value && task.time && task.time < timeFilter.value) {
+                    return false;
                 }
                 
                 return true;
@@ -1345,23 +1357,30 @@
 
         // Update tasks title based on current filter
         function updateTasksTitle() {
+            let title = '';
             if (currentFilter === 'today') {
-                tasksTitle.textContent = "Today's Tasks";
+                title = "Today's Tasks";
+            } else if (currentFilter === 'date') {
+                const sel = selectedDate;
+                if (sel.toDateString() === new Date().toDateString()) {
+                    title = "Today's Tasks";
+                } else {
+                    title = sel.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }) + " Tasks";
+                }
             } else if (currentFilter === 'all') {
-                tasksTitle.textContent = "All Tasks";
+                title = "All Tasks";
             } else if (currentFilter === 'completed') {
-                tasksTitle.textContent = "Completed Tasks";
+                title = "Completed Tasks";
             } else if (currentFilter === 'pending') {
-                tasksTitle.textContent = "Pending Tasks";
+                title = "Pending Tasks";
             } else if (currentFilter === 'overdue') {
-                tasksTitle.textContent = "Overdue Tasks";
-            } else {
-                tasksTitle.textContent = selectedDate.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    month: 'long', 
-                    day: 'numeric' 
-                }) + " Tasks";
+                title = "Overdue Tasks";
             }
+            tasksTitle.textContent = title;
         }
 
         // Update statistics
@@ -1371,9 +1390,12 @@
             const pending = total - completed;
             const overdue = tasks.filter(task => {
                 if (task.completed) return false;
-                const taskDate = new Date(task.date);
                 const now = new Date();
-                return taskDate < now;
+                const taskDueDate = new Date(task.date + 'T00:00:00');
+                const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                taskDueDate.setHours(0, 0, 0, 0);
+                nowDate.setHours(0, 0, 0, 0);
+                return taskDueDate < nowDate;
             }).length;
             
             totalTasksEl.textContent = total;
@@ -1462,8 +1484,9 @@
             taskDescriptionInput.value = '';
             taskPriorityInput.value = 'medium';
             
-            // Set default date to selected date
-            taskDateInput.valueAsDate = selectedDate;
+            // Always default to today for new tasks
+            const today = new Date();
+            taskDateInput.valueAsDate = today;
             
             taskTimeInput.value = '';
             currentTaskId = null;
@@ -1481,7 +1504,7 @@
             taskTitleInput.value = task.title;
             taskDescriptionInput.value = task.description || '';
             taskPriorityInput.value = task.priority;
-            taskDateInput.value = task.date.split('T')[0];
+            taskDateInput.value = task.date;
             taskTimeInput.value = task.time || '';
             currentTaskId = taskId;
             taskModal.style.display = 'flex';
@@ -1511,10 +1534,14 @@
             const title = taskTitleInput.value.trim();
             const description = taskDescriptionInput.value.trim();
             const priority = taskPriorityInput.value;
-            const date = taskDateInput.value;
+            let date = taskDateInput.value;
             const time = taskTimeInput.value;
             
-            if (!title || !date) return;
+            if (!title) return;
+            
+            if (!date) {
+                date = formatLocalDate(new Date());
+            }
             
             if (isEditing) {
                 // Update existing task
